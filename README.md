@@ -1,4 +1,4 @@
-booterizer
+booterizer 5.3
 ========
 
 booterizer is designed to quickly configure a disposable VM to boot a specific version of the SGI IRIX installer over the network on an SGI machine without a whole lot of fuss. 
@@ -99,7 +99,7 @@ I am not sure what range of IRIX versions this will work with or what SGI machin
 * Operating Systems
 	* IRIX 5.3
 
-I suspect that most other hardware released in those timeframes will also work (e.g. O2, server variants, etc.) SGI obviously kept the netboot/install process pretty consistent so I'd expect it to work on probably any MIPS-based SGI system. 
+I suspect that most other hardware released in those timeframes will also work. SGI obviously kept the netboot/install process pretty consistent so I'd expect it to work on probably any MIPS-based SGI system. 
 
 Some changes will definitely be needed to support other hypervisors, but booterizer should work with VirtualBox on other systems as long as the `bridgenic` parameter is updated correctly. 
 
@@ -123,7 +123,6 @@ installmethod: "ftp"
 ```
 
 The selections.yml retains the installmirror field from other branches, but it is not used. You do not need to change it.
-```
 
 This is the new hostname for your SGI post-installation
 ```
