@@ -1,6 +1,6 @@
 booterizer:
   installmirror:  "https://s3.amazonaws.com"
-  irixversion:    "6.5.30"
+  irixversion:    "5.3"
   installmethod:  "ftp"
   clientname:     "sgi"
   clientdomain:   "devonshire.org"

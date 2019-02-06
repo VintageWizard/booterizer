@@ -1,6 +1,7 @@
 ftpurls:
-  foundation: 
-    - http://dillernet.com/apple/downloads/irix_5_3_foundation.tgz
-  devel: 
-    - http://dillernet.com/apple/downloads/irix_5_3_development.tgz
-  
+  foundation:
+    baseurl:        "http://dillernet.com/apple/downloads/"
+    disc1:          irix_5_3_foundation.tgz
+  devel:
+    baseurl:        "http://dillernet.com/apple/downloads/"
+    devfoundations: irix_5_3_development.tgz

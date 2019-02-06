@@ -3,11 +3,7 @@ booterizer
 
 booterizer is designed to quickly configure a disposable VM to boot a specific version of the SGI IRIX installer over the network on an SGI machine without a whole lot of fuss. 
 
-By default booterizer downloads IRIX 6.5.30 installation media from a mirror site. You can modify the media download URLs in the included Vagrantfile.
-
-booterizer also works with IRIX 6.5.22 for older SGI systems that can run 6.5
-booterizer even works with IRIX 5.3 for classic SGI systems that cannot run 6.5.x
-
+This is a hard fork of booterizer that supports Irix 5.3 only. Due to significant differences in the distribution for 5.3 and later versions, it does not support Irix 6.5.22 or 6.5.30.
 
 booterizer is not secure and may interfere with other network services (e.g. DHCP) so please don't leave it running long-term. I recommend only attaching the network interface to an isolated network for this purpose and then `vagrant halt` or `vagrant destroy` the VM when you are done installing.
 
@@ -96,22 +92,20 @@ Now we can move on and start to configure the Vagrant file and start up the VM..
 I am not sure what range of IRIX versions this will work with or what SGI machines are compatible. Personal testing and user reports show the following (at minimum) should be compatible:
 
 * Target Hardware
-	* SGI O2
+	* SGI Indy
 	* SGI Indigo
 	* SGI Indigo2
-	* SGI Octane
 
 * Operating Systems
-	* IRIX 6.5.22
-	* IRIX 6.5.30
+	* IRIX 5.3
 
-I suspect that most other hardware and OS versions released in those timeframes will also work (e.g. O2, server variants, etc.) SGI obviously kept the netboot/install process pretty consistent so I'd expect it to work on probably any MIPS-based SGI system. 
+I suspect that most other hardware released in those timeframes will also work (e.g. O2, server variants, etc.) SGI obviously kept the netboot/install process pretty consistent so I'd expect it to work on probably any MIPS-based SGI system. 
 
 Some changes will definitely be needed to support other hypervisors, but booterizer should work with VirtualBox on other systems as long as the `bridgenic` parameter is updated correctly. 
 
 
 # Setup
-By default, this vagrant VM will fetch proper irix installation packages from ftp.irisware.net (or another mirror).
+By default, this vagrant VM will fetch proper irix installation packages from the mirror specified in settings.yml.
 
 ## Settings
 These settings are found in `settings.yml`. Edit them to suit your environment.
@@ -120,7 +114,7 @@ These settings are found in `settings.yml`. Edit them to suit your environment.
 
 Set this to the version of IRIX you are installing.
 ```
-irixversion: "6.5.30"
+irixversion: "5.3"
 ```
 
 Currently installmethod is only ftp/http. Choose ftp here and http will be used if available. cd is no longer supported.
@@ -128,12 +122,7 @@ Currently installmethod is only ftp/http. Choose ftp here and http will be used 
 installmethod: "ftp"
 ```
 
-Pick your install mirror
- * the same files are in both locations
- * choose only one of these
-```
-  installmirror: "http://us.irisware.net/sgi-irix"
-  installmirror: "http://sgi-irix.s3-website-us-east-1.amazonaws.com"
+The selections.yml retains the installmirror field from other branches, but it is not used. You do not need to change it.
 ```
 
 This is the new hostname for your SGI post-installation
@@ -194,15 +183,6 @@ NOTE: This VM starts a BOOTP server that will listen to broadcast traffic on you
 ![Image of a possible network setup for Booterizer](docs/booterizer_network_v1a.png?raw=true "Booterizer Network Setup")
 
 
-## IRIX media from FTP or S3
-This VM can now sync installation media from the FTP site ftp.irisware.net or from S3 using http. Irisware it is the default but you can easily change this to S3 by editing the settings.yml file to:
-```
-installmirror:  "https://s3.amazonaws.com"
-```
-and then saving the file and using the vagrant provision command if the vagrant host has been booted.
-
-Vagrant will automatically create a vagrant/irix directory on your host machine that is shared between it and the VM. It will then fetch the installation media archives only if they are missing from that directory. 
-
 # Booting
 
 ## Set IP address in PROM
@@ -225,7 +205,7 @@ Now examine the final output of the vagrant provision or vagrant up command, to 
 * Older systems use fx.ARCS (such as Indigos and Indy and some O2s)
 * O2 and newer systems use fx.64
 ```
-> bootp():/6.5.30/Overlay/disc1/stand/fx.64
+> bootp():/Foundation/disc1/stand/fx.ARCS
 Setting $netaddr to 192.168.251.34 (from server )
 Obtaining /6.5.30/Overlay/disc1/stand/fx.64 from server 
 95040+26448+7168+2805248+50056d+5908+8928 entry: 0x8fd4aa40
@@ -236,7 +216,7 @@ SGI Version 6.5 ARCS BE  Jul 20, 2006
 ```
 Newer systems will use fx.64
 ```
-bootp():/6.5.30/Overlay/disc1/stand/fx.64
+bootp():/Foundation/disc1/stand/fx.64
 ```
 
 Now continue with the partitoning process.
@@ -248,9 +228,9 @@ Now continue with the partitoning process.
 
 If you need to boot `fx` to label/partition your disk, open the command monitor and issue a command similar to this:
 
-`bootp():/6.5.30/Overlay/disc1/stand/fx.ARCS`
+`bootp():/Foundation/disc1/stand/fx.ARCS`
 
-where `/6.5.30/Overlay/disc1/stand/fx.ARCS` is a path relative to your selected IRIX version in the directory structure from above. When installing IRIX 6.5.x you'll want to use the partitioner included with the overlay set (first disc), but prior versions of IRIX usually locate the partitioner on the first install disc.
+where `/Foundation/disc1/stand/fx.ARCS` is a path relative to your selected IRIX version in the directory structure from above. When installing IRIX 6.5.x you'll want to use the partitioner included with the overlay set (first disc), but prior versions of IRIX usually locate the partitioner on the first install disc.
 
  Use `fx.ARCS` for R4xxx machines (like the O2) and `fx.64` for R5000+ machines (and others for older machines, I assume). Once `booterizer` finishes setup it lists any detected partitioners to help you find the correct path.
 
@@ -264,7 +244,7 @@ The installer can be reached through the monitor GUI as follows:
 * At the maintenance boot screen, select "Install Software"
 * If it prompts you for an IP address, enter the same address you entered into the Vagrantfile config for `clientip`.
 * Use `booterizer` as the install server hostname.
-* For the installation path, this depends on your directory structure. If you use the structure example from above, you would use the path `6.5.30/Overlay/disc1/dist`. Notice the lack of leading `/`.
+* For the installation path, this depends on your directory structure. If you use the structure example from above, you would use the path `Foundation/disc1/dist`. Notice the lack of leading `/`.
 * This should load the miniroot over the network and boot into the installer.
 * From inst, choose Option 13, Admin menu
   * booterizer generates a 'selections' file that contains all of the media paths for inst to load
@@ -347,7 +327,7 @@ the file didn't download fully. vagrant ssh into the host, move into that direct
 
 * Example
 ```
-$ rm /vagrant/irix/6.5.30/Overlay/disc1/disc1.tar.gz
+$ rm /vagrant/irix/Foundation/disc1/irix_5_3_foundation.tgz
 ```
 * then back on you main host run the provision again:
 ```
