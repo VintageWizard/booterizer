@@ -122,7 +122,7 @@ Currently installmethod is only ftp/http. Choose ftp here and http will be used 
 installmethod: "ftp"
 ```
 
-The selections.yml retains the installmirror field from other branches, but it is not used. You do not need to change it.
+The selections.yml retains the installmirror field from other branches, but it is not used. You do not need to change it. Instead, there is a currently working mirror linked in irix5.3.yml. You can edit irix5.3.yml to specify a different mirror if you prefer.
 
 This is the new hostname for your SGI post-installation
 ```
